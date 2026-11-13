@@ -1,0 +1,60 @@
+
+# ==============================
+# Environment variables and secrets
+# ==============================
+.env
+.env.*
+!.env.example
+
+# ==============================
+# Python virtual environment
+# ==============================
+venv/
+.venv/
+env/
+
+# ==============================
+# Python cache files
+# ==============================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==============================
+# Testing and coverage
+# ==============================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ==============================
+# Streamlit
+# ==============================
+.streamlit/secrets.toml
+
+# ==============================
+# ChromaDB vector database
+# ==============================
+vector_db/
+
+# ==============================
+# Uploaded PDF documents
+# ==============================
+data/uploaded_docs/
+*.pdf
+
+# ==============================
+# Temporary files and logs
+# ==============================
+*.log
+*.tmp
+temp/
+
+# ==============================
+# IDE and operating system
+# ==============================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+ 
