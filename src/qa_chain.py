@@ -1,6 +1,7 @@
 
 import os
 import re
+import streamlit as st
 
 from dotenv import load_dotenv
 from google import genai
@@ -122,6 +123,12 @@ def answer_question(
     load_dotenv()
 
     api_key = os.getenv("GOOGLE_API_KEY")
+
+    if not api_key:
+        try:
+            api_key = st.secrets["GOOGLE_API_KEY"]
+        except (KeyError, FileNotFoundError):
+            api_key = None
 
     if not api_key:
         raise ValueError("Gemini API key not found!")
