@@ -1,6 +1,5 @@
 
 import streamlit as st
-import base64
 import tempfile
 import os
 
@@ -10,22 +9,7 @@ from src.vector_store import create_vector_store
 from src.qa_chain import answer_question
 from src.document_summarizer import summarize_document
 
-def display_pdf(pdf_bytes, height=750):
-    """Display a PDF inside the Streamlit application."""
 
-    base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
-
-    pdf_display = f"""
-        <iframe
-            src="data:application/pdf;base64,{base64_pdf}"
-            width="100%"
-            height="{height}"
-            type="application/pdf"
-            style="border: none; border-radius: 12px;"
-        ></iframe>
-    """
-
-    st.markdown(pdf_display, unsafe_allow_html=True)
 # ==================================================
 # PAGE CONFIGURATION
 # ==================================================
@@ -129,14 +113,6 @@ section[data-testid="stSidebar"] h2 {
     margin-top: 8px;
 }
 
-.upload-card {
-    background: rgba(30, 41, 70, 0.55);
-    border: 1px solid rgba(139, 92, 246, 0.25);
-    border-radius: 18px;
-    padding: 22px;
-    margin: 15px 0;
-}
-
 .stButton > button {
     background: linear-gradient(90deg, #7c3aed, #4f46e5);
     color: white;
@@ -210,8 +186,11 @@ if "processed_signature" not in st.session_state:
 
 if "pdf_files" not in st.session_state:
     st.session_state.pdf_files = {}
+
 if "document_summaries" not in st.session_state:
     st.session_state.document_summaries = {}
+
+
 # ==================================================
 # SIDEBAR
 # ==================================================
@@ -288,6 +267,7 @@ with st.sidebar:
                         temp_path = temp_file.name
 
                     documents = load_pdf(temp_path)
+
                     st.session_state.pdf_files[uploaded_file.name] = (
                         uploaded_file.getvalue()
                     )
@@ -331,7 +311,6 @@ with st.sidebar:
                     st.session_state.processed_files = successful_files
                     st.session_state.total_chunks = len(all_chunks)
                     st.session_state.processed_signature = current_signature
-
                     st.session_state.messages = []
                     st.session_state.document_summaries = {}
 
@@ -405,7 +384,6 @@ with st.sidebar:
                 st.write(f"📄 {filename}")
 
 
-
 # ==================================================
 # MAIN HERO SECTION
 # ==================================================
@@ -414,13 +392,19 @@ st.markdown("""
 <div class="hero">
     <h1>📚 DocuMind</h1>
     <p>Your documents. Your knowledge. One intelligent AI assistant.</p>
-    <div style="display:inline-block;background:rgba(255,255,255,0.16);padding:7px 13px;border-radius:20px;color:white;font-size:12px;margin-top:8px;">
+    <div style="
+        display:inline-block;
+        background:rgba(255,255,255,0.16);
+        padding:7px 13px;
+        border-radius:20px;
+        color:white;
+        font-size:12px;
+        margin-top:8px;
+    ">
         ✨ POWERED BY RAG + GEMINI AI
     </div>
 </div>
 """, unsafe_allow_html=True)
-
-
 
 
 # ==================================================
@@ -469,9 +453,8 @@ with col3:
     """, unsafe_allow_html=True)
 
 
-
 # ==================================================
-# SPLIT-SCREEN DOCUMENT WORKSPACE
+# DOCUMENT WORKSPACE
 # ==================================================
 
 st.markdown(
@@ -497,27 +480,25 @@ if not st.session_state.documents_processed:
 
 else:
 
-    # Get available PDF files
+    # --------------------------------------------------
+    # DOCUMENT SELECTION
+    # --------------------------------------------------
+
     available_files = st.session_state.processed_files
 
     if not available_files:
+
         st.warning("No processed documents are available.")
 
     else:
 
-        # --------------------------------------------------
-        # DOCUMENT SELECTION
-        # --------------------------------------------------
-
         st.markdown("### 📂 Select a document")
 
         selected_pdf = st.selectbox(
-            "Choose a PDF to preview",
+            "Choose a PDF document",
             options=available_files,
             key="selected_pdf"
         )
-
-        pdf_bytes = st.session_state.pdf_files.get(selected_pdf)
 
         # --------------------------------------------------
         # DOCUMENT SUMMARIZATION
@@ -534,21 +515,30 @@ else:
             use_container_width=True,
             key="generate_summary"
         ):
+
             pdf_data = st.session_state.pdf_files.get(selected_pdf)
 
             if not pdf_data:
-                st.error("PDF file not found. Please upload it again.")
+
+                st.error(
+                    "PDF file not found. Please upload it again."
+                )
+
             else:
+
                 temp_path = None
 
                 try:
+
                     with st.spinner(
                         "📖 Reading document and generating summary..."
                     ):
+
                         with tempfile.NamedTemporaryFile(
                             delete=False,
                             suffix=".pdf"
                         ) as temp_file:
+
                             temp_file.write(pdf_data)
                             temp_path = temp_file.name
 
@@ -559,18 +549,24 @@ else:
                         ] = result
 
                 except Exception as error:
+
                     st.error(f"Summary generation failed: {error}")
 
                 finally:
+
                     if temp_path and os.path.exists(temp_path):
                         os.unlink(temp_path)
 
-        # Display previously generated summary
+        # --------------------------------------------------
+        # DISPLAY GENERATED SUMMARY
+        # --------------------------------------------------
+
         summary_result = st.session_state.document_summaries.get(
             selected_pdf
         )
 
         if summary_result:
+
             st.markdown("#### 📝 Complete Document Summary")
 
             st.markdown(summary_result["summary"])
@@ -581,7 +577,9 @@ else:
             )
 
             with st.expander("📚 View Section-wise Summaries"):
+
                 for section in summary_result["sections"]:
+
                     st.markdown(
                         f"**Pages {section['start_page']}–"
                         f"{section['end_page']}**"
@@ -590,213 +588,176 @@ else:
                     st.write(section["summary"])
                     st.divider()
 
+        # ==================================================
+        # AI CHAT WORKSPACE
+        # ==================================================
 
-        # --------------------------------------------------
-        # TWO-COLUMN LAYOUT
-        # --------------------------------------------------
+        st.divider()
 
-        pdf_column, chat_column = st.columns(
-            [1, 1],
-            gap="large"
+        st.markdown("### 🤖 Chat with DocuMind")
+
+        st.caption(
+            "Ask questions about your uploaded documents."
         )
 
-        # ==================================================
-        # LEFT SIDE - PDF VIEWER
-        # ==================================================
+        # --------------------------------------------------
+        # CLEAR CHAT BUTTON
+        # --------------------------------------------------
 
-        with pdf_column:
+        if st.button(
+            "🗑️ Clear Chat",
+            use_container_width=False
+        ):
 
-            st.markdown("### 📄 Document Preview")
+            st.session_state.messages = []
+            st.rerun()
 
-            if pdf_bytes:
+        # --------------------------------------------------
+        # DISPLAY CHAT HISTORY
+        # --------------------------------------------------
 
-                st.caption(f"Currently viewing: {selected_pdf}")
+        chat_container = st.container(height=570)
 
-                display_pdf(
-                    pdf_bytes,
-                    height=750
-                )
+        with chat_container:
 
-            else:
+            for message in st.session_state.messages:
 
-                st.warning(
-                    "PDF preview unavailable. "
-                    "Please upload and process this document again."
-                )
+                with st.chat_message(message["role"]):
 
-        # ==================================================
-        # RIGHT SIDE - AI CHAT
-        # ==================================================
+                    st.markdown(message["content"])
 
-        with chat_column:
+                    if (
+                        message["role"] == "assistant"
+                        and message.get("sources")
+                    ):
 
-            st.markdown("### 🤖 Chat with DocuMind")
+                        st.markdown("**📚 Sources used**")
 
-            st.caption(
-                "Ask questions about your uploaded documents."
-            )
+                        for source in message["sources"]:
 
-            # Clear chat button
-            if st.button(
-                "🗑️ Clear Chat",
-                use_container_width=False
-            ):
-                st.session_state.messages = []
-                st.rerun()
+                            with st.expander(
+                                f"📄 {source['source']} | "
+                                f"Page {source['page']}"
+                            ):
 
-            # --------------------------------------------------
-            # DISPLAY CHAT HISTORY
-            # --------------------------------------------------
+                                st.markdown("**Retrieved text preview**")
 
-            chat_container = st.container(height=570)
+                                content = source["content"]
+                                preview = content[:700]
+
+                                if len(content) > 700:
+                                    preview += "..."
+
+                                st.write(preview)
+
+        # --------------------------------------------------
+        # SUGGESTED QUESTIONS
+        # --------------------------------------------------
+
+        st.markdown("**✨ Try asking**")
+
+        suggestion_columns = st.columns(2)
+
+        suggestions = [
+            "Summarize this document",
+            "What are the main topics?",
+            "Explain the important concepts",
+            "What are the key takeaways?"
+        ]
+
+        for index, suggestion in enumerate(suggestions):
+
+            with suggestion_columns[index % 2]:
+
+                if st.button(
+                    suggestion,
+                    key=f"suggestion_{index}",
+                    use_container_width=True
+                ):
+
+                    st.session_state.pending_question = suggestion
+                    st.rerun()
+
+        # --------------------------------------------------
+        # QUESTION INPUT
+        # --------------------------------------------------
+
+        typed_question = st.chat_input(
+            "Ask anything about your documents..."
+        )
+
+        pending_question = st.session_state.pop(
+            "pending_question",
+            None
+        )
+
+        prompt = typed_question or pending_question
+
+        if prompt:
+
+            st.session_state.messages.append({
+                "role": "user",
+                "content": prompt
+            })
 
             with chat_container:
 
-                for message in st.session_state.messages:
+                with st.chat_message("user"):
+                    st.markdown(prompt)
 
-                    with st.chat_message(message["role"]):
+                with st.chat_message("assistant"):
 
-                        st.markdown(message["content"])
-
-                        if (
-                            message["role"] == "assistant"
-                            and message.get("sources")
-                        ):
-
-                            st.markdown("**📚 Sources used**")
-
-                            for source in message["sources"]:
-
-                                with st.expander(
-                                    f"📄 {source['source']} | "
-                                    f"Page {source['page']}"
-                                ):
-
-                                    st.markdown(
-                                        "**Retrieved text preview**"
-                                    )
-
-                                    content = source["content"]
-
-                                    preview = content[:700]
-
-                                    if len(content) > 700:
-                                        preview += "..."
-
-                                    st.write(preview)
-
-            # --------------------------------------------------
-            # SUGGESTED QUESTIONS
-            # --------------------------------------------------
-
-            st.markdown("**✨ Try asking**")
-
-            suggestion_columns = st.columns(2)
-
-            suggestions = [
-                "Summarize this document",
-                "What are the main topics?",
-                "Explain the important concepts",
-                "What are the key takeaways?"
-            ]
-
-            for index, suggestion in enumerate(suggestions):
-
-                with suggestion_columns[index % 2]:
-
-                    if st.button(
-                        suggestion,
-                        key=f"suggestion_{index}",
-                        use_container_width=True
+                    with st.spinner(
+                        "🔍 Searching your documents..."
                     ):
 
-                        st.session_state.pending_question = suggestion
-                        st.rerun()
+                        try:
 
-            # --------------------------------------------------
-            # QUESTION INPUT
-            # --------------------------------------------------
-
-            typed_question = st.chat_input(
-                "Ask anything about your documents..."
-            )
-
-            pending_question = st.session_state.pop(
-                "pending_question",
-                None
-            )
-
-            prompt = typed_question or pending_question
-
-            if prompt:
-
-                st.session_state.messages.append({
-                    "role": "user",
-                    "content": prompt
-                })
-
-                with chat_container:
-
-                    with st.chat_message("user"):
-                        st.markdown(prompt)
-
-                    with st.chat_message("assistant"):
-
-                        with st.spinner(
-                            "🔍 Searching your documents..."
-                        ):
-
-                            try:
-
-                                result = answer_question(
+                            result = answer_question(
                                 prompt,
                                 return_sources=True,
                                 chat_history=st.session_state.messages[:-1],
                                 source=selected_pdf
+                            )
+
+                            answer = result["answer"]
+                            sources = result["sources"]
+
+                            st.markdown(answer)
+
+                            if sources:
+
+                                st.markdown("**📚 Sources used**")
+
+                                for source in sources:
+
+                                    with st.expander(
+                                        f"📄 {source['source']} | "
+                                        f"Page {source['page']}"
+                                    ):
+
+                                        content = source["content"]
+                                        preview = content[:700]
+
+                                        if len(content) > 700:
+                                            preview += "..."
+
+                                        st.write(preview)
+
+                            else:
+
+                                st.caption(
+                                    "No relevant source passages were retrieved."
                                 )
 
-                                answer = result["answer"]
-                                sources = result["sources"]
+                            st.session_state.messages.append({
+                                "role": "assistant",
+                                "content": answer,
+                                "sources": sources
+                            })
 
-                                st.markdown(answer)
+                        except Exception as error:
 
-                                if sources:
-
-                                    st.markdown("**📚 Sources used**")
-
-                                    for source in sources:
-
-                                        with st.expander(
-                                            f"📄 {source['source']} | "
-                                            f"Page {source['page']}"
-                                        ):
-
-                                            content = source["content"]
-
-                                            preview = content[:700]
-
-                                            if len(content) > 700:
-                                                preview += "..."
-
-                                            st.write(preview)
-
-                                else:
-
-                                    st.caption(
-                                        "No relevant source passages were retrieved."
-                                    )
-
-                                st.session_state.messages.append({
-                                    "role": "assistant",
-                                    "content": answer,
-                                    "sources": sources
-                                })
-
-                            except Exception as error:
-
-                                st.error(
-                                    f"Unable to generate answer: {error}"
-                                )
-
-
-
+                            st.error(
+                                f"Unable to generate answer: {error}"
+                            )
