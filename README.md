@@ -1,211 +1,119 @@
-# 📚 DocuMind — AI-Powered PDF Q&A Assistant
+# 📚 DocuMind — AI-Powered PDF Question Answering Assistant
 
-**Chat with your PDFs. Understand documents. Find answers intelligently.**
+<p align="center">
+  <b>Transform static PDF documents into an interactive AI-powered knowledge assistant.</b>
+</p>
 
-DocuMind is an AI-powered document intelligence application that allows users to upload PDF documents, ask questions in natural language, and receive context-aware answers using Retrieval-Augmented Generation (RAG).
-
-Built with Python, Streamlit, Gemini, HuggingFace embeddings, and ChromaDB.
-
----
-
-## ✨ Features
-
-### 📄 Document Processing
-- Upload multiple PDF documents.
-- Extract text from PDF pages.
-- Split documents into smaller, meaningful chunks.
-- Preserve document filenames and page metadata.
-
-### 🔍 Intelligent Search
-- Generate vector embeddings using HuggingFace Sentence Transformers.
-- Store document embeddings in ChromaDB.
-- Perform semantic similarity search.
-- Retrieve relevant document passages for answering questions.
-
-### 🤖 AI-Powered Question Answering
-- Ask questions about uploaded PDFs using natural language.
-- Generate context-aware answers using Google's Gemini API.
-- Chat with a selected PDF instead of searching all documents.
-- Ask questions about specific PDF pages.
-- Maintain conversational context for follow-up questions.
-
-### 📝 Document Summarization
-- Generate full-document summaries.
-- Process documents in page groups.
-- Combine section summaries into a final summary.
-- View section-wise summaries with page ranges.
-
-### 📚 Source References
-- Display source PDF filenames.
-- Show relevant page numbers.
-- Preview retrieved document passages.
-
-### 🎨 Interactive Interface
-- Built with Streamlit.
-- Split-screen PDF viewer and AI chat workspace.
-- Multiple PDF upload support.
-- Document processing status and metrics.
+<p align="center">
+  <a href="https://documinds.streamlit.app/">
+    <img src="https://img.shields.io/badge/Live%20Demo-Launch%20DocuMind-7C3AED?style=for-the-badge&logo=streamlit&logoColor=white" alt="Live Demo">
+  </a>
+  <img src="https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Framework-Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit">
+  <img src="https://img.shields.io/badge/Architecture-RAG-8B5CF6?style=for-the-badge" alt="RAG">
+</p>
 
 ---
 
-## 🛠️ Technology Stack
+## 🌐 Live Application
 
-| Technology | Purpose |
+### **Try DocuMind:** [https://documinds.streamlit.app/](https://documinds.streamlit.app/)
+
+DocuMind is an AI-powered PDF assistant that allows users to upload PDF documents, ask questions in natural language, and receive intelligent, context-aware answers grounded in the content of their documents.
+
+Built using **Retrieval-Augmented Generation (RAG)**, the application combines semantic search, vector embeddings, persistent vector storage, and Google's Gemini model to make document understanding more efficient and interactive.
+
+---
+
+## ✨ Key Features
+
+| Feature | Description |
 |---|---|
-| Python | Core programming language |
-| Streamlit | Interactive web application |
-| LangChain | Document processing and retrieval components |
-| Google Gemini API | Question answering and summarization |
-| HuggingFace Sentence Transformers | Text embeddings |
-| ChromaDB | Vector database |
-| PyPDF | PDF text extraction |
-| Pytest | Automated testing |
-| python-dotenv | Environment variable management |
-
-**Embedding model:** `sentence-transformers/all-MiniLM-L6-v2`
-
-**LLM:** `gemini-3.5-flash-lite`
-
----
-
-## 🏗️ Project Architecture
-
-DocuMind follows a Retrieval-Augmented Generation architecture.
-
-1. Users upload PDF documents.
-2. Text is extracted and divided into chunks.
-3. HuggingFace generates vector embeddings.
-4. ChromaDB stores the embeddings and document metadata.
-5. A user submits a question.
-6. The retriever finds relevant document chunks.
-7. Gemini generates an answer using the retrieved context.
-8. The application displays the answer along with source references.
+| 📄 Multiple PDF Uploads | Upload and process multiple PDF documents in one workspace. |
+| 📝 Text Extraction | Extract text from PDF pages using PyPDF while preserving page metadata. |
+| 🧩 Intelligent Chunking | Split extracted text into overlapping chunks for effective retrieval. |
+| 🧠 Semantic Embeddings | Convert text chunks into vector representations using Sentence Transformers. |
+| 🗄️ Vector Database | Store document embeddings and metadata using ChromaDB. |
+| 🔍 Semantic Search | Retrieve relevant document passages based on the user's question. |
+| 🤖 AI Question Answering | Generate context-aware answers using Google Gemini. |
+| 📚 Source Citations | Display source document names, page numbers, and retrieved text passages. |
+| 💬 Conversational Memory | Support follow-up questions using recent conversation history and question rewriting. |
+| 📖 Full Document Summarization | Generate a comprehensive summary of an entire PDF. |
+| 📑 Section-wise Summaries | Summarize document sections in groups of five pages and combine them into a final summary. |
+| 🎯 Document-Specific Retrieval | Restrict retrieval to the currently selected PDF. |
 
 ---
 
-## 📁 Project Structure
+## 🧠 System Architecture
 
-```text
-DocuMind/
-│
-├── app.py
-├── requirements.txt
-├── README.md
-├── .env
-├── .gitignore
-│
-├── src/
-│   ├── __init__.py
-│   ├── document_loader.py
-│   ├── document_summarizer.py
-│   ├── text_splitter.py
-│   ├── embeddings.py
-│   ├── vector_store.py
-│   ├── retriever.py
-│   └── qa_chain.py
-│
-├── tests/
-│   ├── __init__.py
-│   ├── test_document_loader.py
-│   ├── test_document_summarizer.py
-│   ├── test_embeddings.py
-│   ├── test_vector_store.py
-│   ├── test_retriever.py
-│   ├── test_text_splitter.py
-│   └── test_qa_chain.py
-│
-├── data/
-│   └── uploaded_docs/
-│
-└── vector_db/
+DocuMind uses a Retrieval-Augmented Generation pipeline to provide answers based on uploaded documents instead of relying only on the language model's general knowledge.
+
+### RAG Workflow
+
+```mermaid
+flowchart TD
+    A["📄 PDF Upload"] --> B["Text Extraction using PyPDF"]
+    B --> C["Recursive Text Chunking"]
+    C --> D["Hugging Face Embeddings"]
+    D --> E[("ChromaDB Vector Store")]
+
+    F["User Question"] --> G["Question Rewriting"]
+    G --> H["Semantic Retrieval"]
+    E --> H
+    H --> I["Relevant Document Chunks"]
+    I --> J["Google Gemini"]
+    J --> K["Context-Aware Answer"]
+    K --> L["Source Citations and Page References"]
+    L --> M["Streamlit Interface"]
 ```
 
-Generated files and local data such as `.env`, uploaded PDFs, and the vector database should remain excluded from Git.
+### Document Summarization Workflow
+
+```mermaid
+flowchart TD
+    A["Uploaded PDF"] --> B["Extract Page Text"]
+    B --> C["Group Pages in Batches of Five"]
+    C --> D["Generate Section Summaries using Gemini"]
+    D --> E["Combine Section Summaries"]
+    E --> F["Generate Final Document Summary"]
+    F --> G["Display Summary and Section-wise Results"]
+```
 
 ---
 
-## ⚙️ Installation and Setup
+## ⚙️ Technology Stack
 
-### 1. Clone the repository
-
-```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
-cd DocuMind
-```
-
-### 2. Create a virtual environment
-
-**Windows PowerShell:**
-
-```powershell
-python -m venv venv
-```
-
-Activate it:
-
-```powershell
-.\venv\Scripts\Activate.ps1
-```
-
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure the Gemini API key
-
-Create a `.env` file in the project root:
-
-```env
-GOOGLE_API_KEY=your_google_gemini_api_key
-```
-
-Obtain your API key through Google AI Studio.
-
-**Important:** Never upload your actual `.env` file or API key to GitHub.
-
-### 5. Run the application
-
-```bash
-streamlit run app.py
-```
-
-The application will open in your browser.
+| Category | Technology | Purpose |
+|---|---|---|
+| Programming Language | Python | Core application development |
+| Frontend | Streamlit | Interactive web application |
+| LLM | Google Gemini 3.5 Flash Lite | Question answering and summarization |
+| AI Architecture | Retrieval-Augmented Generation | Grounded document question answering |
+| Embedding Model | all-MiniLM-L6-v2 | Semantic text embeddings |
+| Embedding Framework | Sentence Transformers | Generate vector representations |
+| Vector Database | ChromaDB | Persistent vector storage and similarity search |
+| PDF Processing | PyPDF | Extract text from PDF documents |
+| AI Framework | LangChain | Document splitting and embedding integrations |
+| Environment Management | Python Virtual Environment | Dependency isolation |
+| Testing | Pytest | Automated testing |
+| Deployment | Streamlit Community Cloud | Public application hosting |
 
 ---
 
-## 🧪 Running Tests
+## 🔄 How DocuMind Works
 
-DocuMind includes automated tests for its main modules.
+### 1. Document Ingestion
+- Users upload one or multiple PDF files.
+- PyPDF extracts text from individual pages.
+- Page numbers and source filenames are retained as metadata.
 
-Run the complete test suite:
+### 2. Text Processing
+- Extracted text is divided into smaller chunks.
+- Recursive Character Text Splitter is used.
+- Chunk size: **1000 characters**
+- Chunk overlap: **200 characters**
 
-```bash
-pytest -v
-```
+This helps preserve context between neighboring chunks.
 
-### Current Test Results
-
-| Module | Tests |
-|---|---:|
-| Document loader | 1 |
-| Document summarizer | 2 |
-| Embeddings | 1 |
-| QA chain | 2 |
-| Retriever | 1 |
-| Text splitter | 1 |
-| Vector store | 1 |
-| **Total** | **9 passed** |
-
----
-
-## 🧠 Core Concepts Demonstrated
-
-This project demonstrates practical implementation of:
-
-- Retrieval-Augmented Generation (RAG)
-- Semantic search
-- Text embeddings
-- Vector databases
-- Document preprocessing
+### 3. Embedding Generation
+- The `sentence-transformers/all-MiniLM-L6-v2` model generates 
